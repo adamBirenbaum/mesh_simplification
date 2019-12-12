@@ -1,3 +1,4 @@
+from vector import Vector
 
 class Matrix():
 	def __init__(self, x00, x01, x02, x03, x10, x11, x12, x13, x20, x21, x22, x23, x30, x31, x32, x33):

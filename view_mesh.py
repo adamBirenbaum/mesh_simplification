@@ -4,6 +4,8 @@ from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 
+
+
 app = QtGui.QApplication([])
 w = gl.GLViewWidget()
 w.show()
@@ -15,7 +17,7 @@ w.setCameraPosition(distance=700)
 #w.addItem(g)
 
 import numpy as np
-
+import pdb
 
 ## Example 1:
 ## Array of vertex positions and array of vertex indexes defining faces
@@ -29,63 +31,43 @@ import pickle
 # faces = pickle.load(pickle_in, encoding = 'latin1')
 # pickle_in.close()
 
-pickle_in = open('vertices_1000.pickle','rb')
+iters = 0.5
+pickle_in = open('vertices_' + str(iters) + '.pickle','rb')
 vertices = pickle.load(pickle_in, encoding = 'latin1')
 pickle_in.close()
 
-pickle_in = open('faces_1000.pickle','rb')
+pickle_in = open('faces_' + str(iters) + '.pickle','rb')
 faces = pickle.load(pickle_in, encoding = 'latin1')
 pickle_in.close()
 
-num_vertices = len(vertices)
-num_faces = len(faces)
+import numpy as np
 
-vertices2 = np.zeros((num_vertices,3))
 
-#import pdb
-#pdb.set_trace()
-vertex_keys = list(vertices.keys())
-for i in range(len(vertex_keys)):
-    vertices2[i] = vertices[vertex_keys[i]]
 
-faces2 = np.zeros((num_faces,3))
-face_colors = np.zeros((num_faces,4))
-convert_index_list = dict(zip(vertex_keys, list(range(len(vertex_keys)))))
+vertices = np.asarray(vertices)
+faces = np.asarray(faces)
 
-for i in range(len(faces)):
-    faces[i] = list(faces[i])
-    for j in range(3):
-        faces[i][j] = convert_index_list[faces[i][j]]
-    faces2[i] = np.array([i for i in list(faces[i])])
-    face_colors[i] = np.array([1, 1, 1, 0.2])
-faces2 = faces2.astype(int)
 
-#import pdb
-#pdb.set_trace()
-verts = np.array([
-    [0, 0, 0],
-    [2, 0, 0],
-    [1, 2, 0],
-    [1, 1, 1],
-])
-faces = np.array([
-    [0, 1, 2],
-    [0, 1, 3],
-    [0, 2, 3],
-    [1, 2, 3]
-])
 
-verts = vertices2
-faces = faces2
-colors = np.array([
-    [1, 0, 0, 0.3],
-    [0, 1, 0, 0.3],
-    [0, 0, 1, 0.3],
-    [1, 1, 0, 0.3]
-])
+# from stl import mesh
+
+# obj = mesh.Mesh(np.zeros(faces.shape[0], dtype=mesh.Mesh.dtype))
+# for i, f in enumerate(faces):
+#     for j in range(3):
+#         obj.vectors[i][j] = vertices[f[j],:]
+
+# # Write the mesh to file "cube.stl"
+# obj.save('helmet_' + str(iters) + '.stl')
+
+
+
+
+
+
+
 
 ## Mesh item will automatically compute face normals.
-m1 = gl.GLMeshItem(vertexes=verts, faces=faces,  smooth=True,  shader = 'shaded')#, color = face_colors )
+m1 = gl.GLMeshItem(vertexes=vertices, faces=faces,  smooth=True)  #shader = 'shaded')#, color = face_colors )
 #m1.translate(5, 5, 0)
 #m1.setGLOptions('additive')
 w.addItem(m1)

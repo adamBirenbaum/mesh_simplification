@@ -6,6 +6,13 @@ class Vector():
 		self.Y = y
 		self.Z = z
 
+	
+	def __eq__(self, other):
+		return (self.X == other.X) and (self.Y == other.Y) and (self.Z == other.Z) 
+
+	def __hash__(self):
+		return hash((self.X, self.Y, self.Z))
+
 	def Less(self, b):
 		if self.X != b.X:
 			return self.X < b.X

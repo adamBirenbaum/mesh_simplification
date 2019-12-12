@@ -1,19 +1,25 @@
 import math
 
-
+from vector import Vector
 
 class PairKey():
 	def __init__(self, a,b):
-		if b.Less(a.Vector):
+		if b.Vector.Less(a.Vector):
 			a, b = b, a
 
 		self.A = a.Vector
 		self.B = b.Vector
 
+	def __eq__(self, other):
+		return (self.A.__eq__(other.A)) and (self.B.__eq__(other.B))
+
+	def __hash__(self):
+		return hash((self.A, self.B))
+
 
 class Pair():
 	def __init__(self, a, b):
-		if b.Less(a.Vector):
+		if b.Vector.Less(a.Vector):
 			a, b = b, a
 
 		self.A = a
@@ -22,20 +28,26 @@ class Pair():
 		self.Removed = False
 		self.CachedError =  -1
 
+	def __eq__(self, other):
+		return (self.A.__eq__(other.A)) and (self.B.__eq__(other.B))
+
+	def __hash__(self):
+		return hash((self.A, self.B))
+
 
 	def Quadric(self):
-		return self.A.Quadric.Add(p.B.Quadric) # Matrix
+		return self.A.Quadric.Add(self.B.Quadric) # Matrix
 
 	def Vector(self):
 		q = self.Quadric()
 
-		if math.abs(q.Determinant()) > .001:
+		if abs(q.Determinant()) > .001:
 			v = q.QuadricVector()
-			if (not math.isnan(v.X)) and (not math.isnan(v.Y)) and (not math.isnan(v.z)):
+			if (not math.isnan(v.X)) and (not math.isnan(v.Y)) and (not math.isnan(v.Z)):
 				return v
 
 		# otherwise look for best vector along edge
-		n = 32
+		n = 10
 
 		a = self.A.Vector
 		b = self.B.Vector
@@ -43,7 +55,7 @@ class Pair():
 		bestE = -1.0
 		bestV = Vector(0,0,0)
 		for i in range(n):
-			t = float64(i) / n
+			t = float(i) / n
 			v = a.Add(d.MulScalar(t))
 			e = q.QuadricError(v)
 			if bestE < 0 or e < bestE:
@@ -57,4 +69,4 @@ class Pair():
 		if self.CachedError < 0:
 			self.CachedError = self.Quadric().QuadricError(self.Vector())
 
-
+		return self.CachedError
