@@ -25,6 +25,13 @@ class Matrix():
 		v.X*self.x02*v.Z + v.Y*self.x12*v.Z + v.Z*self.x22*v.Z + self.x32*v.Z + \
 		v.X*self.x03 + v.Y*self.x13 + v.Z*self.x23 + self.x33)
 
+	def der_quadric_matrix(self):
+		return Matrix(
+		self.x00, self.x01, self.x02, self.x03, \
+		self.x10, self.x11, self.x12, self.x13, \
+		self.x20, self.x21, self.x22, self.x23, \
+		0., 0., 0., 1.)
+
 	def QuadricVector(self):
 		b = Matrix(
 		self.x00, self.x01, self.x02, self.x03, \
@@ -32,7 +39,7 @@ class Matrix():
 		self.x20, self.x21, self.x22, self.x23, \
 		0, 0, 0, 1,)
 	
-		return b.Inverse().MulPosition(Vector(0,0,0))
+		return b.Inverse().MulPosition(Vector(0.,0.,0.))
 
 	def Add(self, b):
 		return Matrix(
@@ -41,6 +48,9 @@ class Matrix():
 		self.x02 + b.x02, self.x12 + b.x12, self.x22 + b.x22, self.x32 + b.x32, \
 		self.x03 + b.x03, self.x13 + b.x13, self.x23 + b.x23, self.x33 + b.x33, \
 	)
+	
+	def mutliply_scalar(self,s):
+		return Matrix(self.x00*s, self.x01*s, self.x02*s, self.x03*s, self.x10*s, self.x11*s, self.x12*s, self.x13*s, self.x20*s, self.x21*s, self.x22*s, self.x23*s, self.x30*s, self.x31*s, self.x32*s, self.x33*s)
 
 	def MulPosition(self, b):
 		x = self.x00*b.X + self.x01*b.Y + self.x02*b.Z + self.x03

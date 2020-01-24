@@ -38,13 +38,17 @@ class Mesh():
 		for t in self.Triangles:
 			i+=1
 
-			q = t.Quadric()
+		
 			v1 = vectorVertex[t.V1]
 			v2 = vectorVertex[t.V2]
 			v3 = vectorVertex[t.V3]
-			v1.Quadric = v1.Quadric.Add(q)
-			v2.Quadric = v2.Quadric.Add(q)
-			v3.Quadric = v3.Quadric.Add(q)
+			q1 = t.Quadric(t.V1)
+			q2 = t.Quadric(t.V2)
+			q3 = t.Quadric(t.V3)
+
+			v1.Quadric = v1.Quadric.Add(q1)
+			v2.Quadric = v2.Quadric.Add(q2)
+			v3.Quadric = v3.Quadric.Add(q3)
 
 			amtDone = i /  nn
 			sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(amtDone * 50), amtDone * 100))
@@ -61,6 +65,8 @@ class Mesh():
 			v1 = vectorVertex[t.V1]
 			v2 = vectorVertex[t.V2]
 			v3 = vectorVertex[t.V3]
+
+
 			f = Face(v1, v2, v3)
 
 			try:
@@ -86,6 +92,7 @@ class Mesh():
 		
 		i = 0.0
 		pairs = {}
+		print('\n\nCreating pairs...')
 		for t in self.Triangles:
 			i+=1
 			v1 = vectorVertex[t.V1]
@@ -99,34 +106,72 @@ class Mesh():
 			sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(amtDone * 50), amtDone * 100))
 		
 
+		pairSharedFaces = {}
+		i = 0.0
+		n2 = len(pairs.values())
+		print('\n\nFinding boundary faces...')
+		for p in pairs.values():
+			i+=1
+			pairSharedFaces[p] = list(set(vertexFaces[p.A]).intersection(set(vertexFaces[p.B])))
+
+			amtDone = i /  n2
+			sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(amtDone * 50), amtDone * 100))
+
+		n_one = 0
+		n_two = 0
+		n2 = len(pairSharedFaces.values())
+		i = 0.0
+		print('\n\nAdding penalty to boundary pairs...')
+		for p,f in zip(pairSharedFaces.keys(), pairSharedFaces.values()):
+			i+=1
+			if len(f) == 1:
+				boundary_q = p.boundary_quadric(f[0])
+				p.A.Q = p.A.Q.add(boundar_Q)
+				p.B.Q = p.B.Q.add(boundary_qq)
+				n_one+=1
+			else:
+				n_two +=1
+			amtDone = i /  n2
+			sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(amtDone * 50), amtDone * 100))		
+
 		
 		vertexPairs = {}
 		i = 0.0
-		
+		n = len(pairs)
 		heap = {}
+		print('\n\nAdding pairs to heap...')
 		for p in pairs:
+			i+=1
 			new_pair = pairs[p]
 			heap[new_pair] = new_pair.Error()
 			
 			try:
 				vertexPairs[new_pair.A].append(new_pair)
-				vertexPairs[new_pair.B].append(new_pair)
 			except KeyError:
 				vertexPairs[new_pair.A] = [new_pair]
+
+			try:
+				vertexPairs[new_pair.B].append(new_pair)
+			except KeyError:
 				vertexPairs[new_pair.B] = [new_pair]
-	
-		
+			amtDone = i /  n
+			sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(amtDone * 50), amtDone * 100))	
+
 		iteration = 0
 		numFaces = len(self.Triangles)
 		original_num_faces = float(len(self.Triangles))
 		target = int(float(numFaces) *  factor)
 		while numFaces > target:
-			#iteration +=1
-			#print('Iteration '+ str(iteration))
+			iteration +=1
+			print('\nIteration '+ str(iteration))
 			pct = ((original_num_faces - target) - (numFaces - target)) / (original_num_faces - target) * 100.0
 			print('% Complete: ' + str(pct)+ '%')
 
-			p = min(heap.iteritems(), key = operator.itemgetter(1))[0]
+			try:
+				p = min(heap.iteritems(), key = operator.itemgetter(1))[0]
+			except ValueError:
+				break
+
 			
 			del heap[p]
 			if p.Removed:
@@ -134,40 +179,34 @@ class Mesh():
 
 			p.Removed = True
 
-			distinctFaces = {}
-			try:
-				for f in vertexFaces[p.A]:
-					if not f.Removed:
-						distinctFaces[f] = True
-			except KeyError:
-				pass
-			try:
+			distinctFaces = set()
+			for f in vertexFaces[p.A]:
+				if not f.Removed:
+					distinctFaces.add(f)
 
-				for f in vertexFaces[p.B]:
-					if not f.Removed:
-						distinctFaces[f] = True
-			except KeyError:
-					pass
-			
+			for f in vertexFaces[p.B]:
+				if not f.Removed:
+					distinctFaces.add(f)
 
 
-			distinctPairs = {}
-			try:
-				for q in vertexPairs[p.A]:
-					if not q.Removed:
-						distinctPairs[q] = True
-			except KeyError:
-				pass
-			try:
-				for q in vertexPairs[p.B]:
-					if not q.Removed:
-						distinctPairs[q] = True
-			except KeyError:
-				pass
+
+			distinctPairs = set()
+			for q in vertexPairs[p.A]:
+				if not q.Removed:
+					distinctPairs.add(q)
+
+			distinctPairs = set()
+			for q in vertexPairs[p.B]:
+				if not q.Removed:
+					distinctPairs.add(q)
+
+
+
 			v = Vertex(p.Vector(), p.Quadric())
 
 
 			newFaces = []
+			new_face_verts = set()
 			valid = True
 			for f in distinctFaces:
 				v1,v2,v3 = f.V1, f.V2, f.V3
@@ -193,22 +232,19 @@ class Mesh():
 				
 			
 				newFaces.append(face)
+				new_face_verts.add(face.V1)
+				new_face_verts.add(face.V2)
+				new_face_verts.add(face.V3)
 
 			
 			
 			if not valid:
 				continue
 
-			try:
+			del vertexFaces[p.A]
 
-				del vertexFaces[p.A]
-			except KeyError:
-				pass
-
-			try:
-				del vertexFaces[p.B]
-			except KeyError:
-				pass			
+			del vertexFaces[p.B]
+		
 
 
 			for f in distinctFaces:
@@ -216,28 +252,32 @@ class Mesh():
 				numFaces -= 1
 
 			for f in newFaces:
+		
 				numFaces +=1
 				try:
 					vertexFaces[f.V1].append(f)
-					vertexFaces[f.V2].append(f)
-					vertexFaces[f.V3].append(f)
 				except KeyError:
 					vertexFaces[f.V1] = [f]
+				
+				try:
+					vertexFaces[f.V2].append(f)
+				except KeyError:
 					vertexFaces[f.V2] = [f]
+
+
+				try:
+					vertexFaces[f.V3].append(f)
+				except KeyError:
 					vertexFaces[f.V3] = [f]
 
-			try:
-				del vertexPairs[p.A]
-			except KeyError:
-				pass
 
-			try:
-				del vertexPairs[p.B]
-			except KeyError:
-				pass
+			del vertexPairs[p.A]
 
 
-			seen = {}
+			del vertexPairs[p.B]
+
+
+			seen = set()
 
 			for q in distinctPairs:
 				q.Removed = True
@@ -257,21 +297,26 @@ class Mesh():
 				if b == v:
 					a,b = b,a
 
-				try:
-					if seen[b.Vector]:
-						continue
-				except KeyError:
-					pass
 
-				seen[b.Vector] = True
+				if b.Vector in seen:
+						continue
+				if a not in new_face_verts or b not in new_face_verts:
+					continue
+
+				if a == b:
+					continue
+
+				seen.add(b.Vector)
 				q = Pair(a,b)
 				heap[q]=q.Error()
 
 				try:
 					vertexPairs[a].append(q)
-					vertexPairs[b].append(q)
 				except KeyError:
 					vertexPairs[a] = [q]
+				try:
+					vertexPairs[b].append(q)
+				except KeyError:
 					vertexPairs[b] = [q]
 
 		distinctFaces = {}

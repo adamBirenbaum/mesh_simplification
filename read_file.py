@@ -41,9 +41,9 @@ def read_file_into_mesh(file, to_pickle = False):
 	return triangles
 
 
-def make_triangles_pyqt_readable(triangles):
+def get_vertices_faces_from_triangles(triangles):
 	vertices = [0] * len(triangles)*3
-	faces = [0]*len(triangles)
+
 
 	i = 0
 	for t in triangles:
@@ -51,10 +51,38 @@ def make_triangles_pyqt_readable(triangles):
 		vertices[i*3 + 1] = [t.V2.X, t.V2.Y, t.V2.Z]
 		vertices[i*3 + 2] = [t.V3.X, t.V3.Y, t.V3.Z]
 
-		faces[i] = [i*3, i*3 + 1, i*3 + 2]
 		i+=1
 
+	faces = np.zeros(len(vertices/3,3),dtype = int)
+	del_verts = []
+	unique_vert_count =1
+	vert_dict = {}
+	face_list = []
+
+	for i in range(len(vertices)):
+		new_vert = frozenset(vertices[i])
+		try:
+			face_val = vert_dict[new_vert]
+			del_verts.append(i)
+		except KeyError:
+			face_val = unique_vert_count
+			unique_vert_count +=1
+		
+		vert_dict[new_vert] = face_val
+		faces[i//3][i%3] = face_val
+
+	for i in reversed(del_verts):
+		del vertices[i]
+
+	vertices = np.array(vertices)
+
 	return vertices, faces
+
+def write_data_out(vertices, faces):
+	np.savetxt('vertices.txt',vertices)
+	np.savetxt('faces.txt',faces)
+	print('Saved')
+	
 
 def pickle_out(ver, faces,iter):
 	import pickle
@@ -70,7 +98,7 @@ def pickle_out(ver, faces,iter):
 
 if __name__ == '__main__':
 	file = "/home/adam/3d_facets/stormtrooper/helmet-ascii.stl"
-	file = "/home/adam/3d_facets/cheval.stl"
+	#file = "/home/adam/3d_facets/cheval.stl"
 
 	triangles = read_file_into_mesh(file)
 

@@ -10,9 +10,16 @@ class PriorityQueue(object):
     # for checking if the queue is empty 
     def isEmpty(self): 
         return len(self.queue) == [] 
-  
+ 	
+ 	def Len(self):
+ 		return (len(pq))
+
+ 	def Less(self, i, j):
+ 		self.queue[i].Error() < self.queue[j].Error()
+
+
     # for inserting an element in the queue 
-    def insert(self, data): 
+    def Push(self, data): 
         self.queue.append(data) 
   
     # for popping an element based on Priority 

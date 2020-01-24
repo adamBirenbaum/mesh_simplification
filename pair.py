@@ -34,6 +34,30 @@ class Pair():
 	def __hash__(self):
 		return hash((self.A, self.B))
 
+	def get_boundary_normal(self,face):
+		if self.is_boundary:
+			v1 = self.A.vector
+		v2 = self.B.vector
+		if v1.less(v2):
+			v1,v2 = v2,v1
+
+		n = face.normal().cross(v1.subtract(v2)).normalize()
+
+
+	def boundary_quadric(self,face):
+		v1 = self.A.vector
+		v2 = self.B.vector
+		if v1.less(v2):
+			v1,v2 = v2,v1
+		
+		n = face.normal().cross(v1.subtract(v2)).normalize()
+		x,y,z = v1.x, v1.y, v1.z
+		a,b,c = n.x, n.y, n.z
+		d = -a*x - b*y - c*z
+		
+		penalty = 10000
+
+		return Matrix(a*a, a*b, a*c,a*d, a*b, b*b, b*c, b*d, a*c, b*c, c*c, C*d, a*d, b*d, c*d, d*d).multiply_scalary(penalty)
 
 	def Quadric(self):
 		return self.A.Quadric.Add(self.B.Quadric) # Matrix
@@ -41,7 +65,7 @@ class Pair():
 	def Vector(self):
 		q = self.Quadric()
 
-		if abs(q.Determinant()) > .001:
+		if abs(q.der_quadric_matrix().Determinant()) > .001:
 			v = q.QuadricVector()
 			if (not math.isnan(v.X)) and (not math.isnan(v.Y)) and (not math.isnan(v.Z)):
 				return v
@@ -53,7 +77,7 @@ class Pair():
 		b = self.B.Vector
 		d = b.Sub(a)
 		bestE = -1.0
-		bestV = Vector(0,0,0)
+		bestV = Vector(0.,0.,0.)
 		for i in range(n):
 			t = float(i) / n
 			v = a.Add(d.MulScalar(t))

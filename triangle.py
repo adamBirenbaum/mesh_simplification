@@ -8,9 +8,9 @@ class Triangle():
 		self.V3 = v3
 
 
-	def Quadric(self):
+	def Quadric(self, vert):
 		n = self.Normal()
-		x, y, z = self.V1.X, self.V1.Y, self.V1.Z
+		x, y, z = vert.X, vert.Y, vert.Z
 		a, b, c = n.X, n.Y, n.Z
 		d = -a*x - b*y - c*z
 		return Matrix(

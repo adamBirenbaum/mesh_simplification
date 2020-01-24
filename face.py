@@ -1,23 +1,8 @@
+from vector import Vector
 
 class Face():
 	def __init__(self, v1, v2, v3):
 		
-		if v1.Vector.Less(v2.Vector):
-			if v2.Vector.Less(v3.Vector):
-				v1,v2,v3 = v3,v2,v1
-			elif v1.Vector.Less(v3.Vector):
-				v1,v2,v3 = v2,v3,v2	
-			else:
-				v1,v2,v3 = v2,v1,v3
-		elif v1.Vector.Less(v3.Vector):
-			v1,v2,v3 = v3,v1,v2
-		else:
-			if v2.Vector.Less(v3.Vector):
-				v1,v2,v3 = v1,v3,v2
-			else: 
-				v1,v2,v3 = v1,v2,v3
-
-
 
 
 		self.V1 = v1  # Class Vertex
@@ -26,11 +11,21 @@ class Face():
 		self.Removed = False
 
 	def Degenerate(self):
+
+		same_vector = self.V1.Vector == self.V2.Vector or self.V1.Vector == self.V3.Vector or self.V2.Vector == self.V3.Vector
+
 		v1 = self.V1.Vector
 		v2 = self.V2.Vector
 		v3 = self.V3.Vector
 
-		return v1 == v2 or v1 == v3 or v2 == v3
+		return same_vector or self.is_one_dimensional()
+
+
+	def is_one_dimensional(self):
+		e1 = self.V2.Vector.Sub(self.V1.Vector)
+		e2 = self.V3.Vector.Sub(self.V1.Vector)	
+	
+		return e1.Cross(e1).Normalize() == Vector(0.,0.,0.)
 
 	def Normal(self):
 		e1 = self.V2.Vector.Sub(self.V1.Vector)

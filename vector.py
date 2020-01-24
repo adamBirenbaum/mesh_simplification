@@ -36,6 +36,8 @@ class Vector():
 
 	def Normalize(self):
 		d = self.Length()
+		if d < 1E-5:
+			return Vector(0.,0.,0.)
 		return Vector(self.X / d, self.Y / d, self.Z / d)
 
 	def Sub(self, b):
