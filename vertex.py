@@ -8,7 +8,7 @@ class Vertex:
 		self.Vector = v
 		self.Quadric = Q
 
- 	def __eq__(self, other):
+	def __eq__(self, other):
 		return (self.Vector.__eq__(other.Vector))
 
 	def __hash__(self):

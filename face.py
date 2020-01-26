@@ -14,9 +14,6 @@ class Face():
 
 		same_vector = self.V1.Vector == self.V2.Vector or self.V1.Vector == self.V3.Vector or self.V2.Vector == self.V3.Vector
 
-		v1 = self.V1.Vector
-		v2 = self.V2.Vector
-		v3 = self.V3.Vector
 
 		return same_vector or self.is_one_dimensional()
 
@@ -25,7 +22,7 @@ class Face():
 		e1 = self.V2.Vector.Sub(self.V1.Vector)
 		e2 = self.V3.Vector.Sub(self.V1.Vector)	
 	
-		return e1.Cross(e1).Normalize() == Vector(0.,0.,0.)
+		return e1.Cross(e2).Normalize() == Vector(0.,0.,0.)
 
 	def Normal(self):
 		e1 = self.V2.Vector.Sub(self.V1.Vector)

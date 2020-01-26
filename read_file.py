@@ -1,23 +1,52 @@
-import pdb
+
 import numpy as np
 import sys
-#convert to format similar to work
-
-from triangle import Triangle
 from vector import Vector
-from mesh import Mesh
+from triangle import Triangle
 
-def read_file_into_mesh(file, to_pickle = False):
-	vertex_num = 0
-	vertices = {}
+def read_obj_file(file):
+	
+
+	vertices = []
 	faces = []
-	vert_key = []
 	num_lines = len(open(file).readlines())
 	line_num = 0.0
+	print('Reading .obj file...')
+	for line in open(file, 'r'):
+		line_num += 1.0
+		split_line = line.split()
+		if split_line[0] == 'v':
+			vertices.append([split_line[1], split_line[2], split_line[3]])
+			continue
+		if split_line[0] == 'f':
+			
+			new_face = [0,0,0]
+			for i in range(3):
+				f = split_line[i+1]
+				slash_ind = f.find('/')
+				if slash_ind == -1:
+					new_face[i] = f
+				else:
+					new_face[i] = f[:slash_ind]
+			faces.append(new_face)
 
-	print('Converting to work format...\n')
-	triangles = []
-	vectors = []
+		amtDone = line_num / num_lines
+		sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(amtDone * 50), amtDone * 100))
+	
+	faces = np.array(faces, dtype = int) - 1
+	vertices = np.array(vertices,dtype = float)
+	return vertices, faces
+
+
+def read_stl_file(file):
+
+	vertices = []
+	faces = []
+	num_lines = len(open(file).readlines())
+	line_num = 0.0
+	face_num = 0
+	print('Reading .stl file...\n')
+
 	for line in open(file):
 		line_num += 1.0
 		split_line = line.split()
@@ -25,86 +54,21 @@ def read_file_into_mesh(file, to_pickle = False):
 		if split_line[0] == 'vertex':
 			
 		
-			vectors.append(Vector(float(split_line[1]), float(split_line[2]), float(split_line[3])))
+			vertices.append([float(split_line[1]), float(split_line[2]), float(split_line[3])])
 
 
 		elif split_line[0] == 'endloop':
-			triangles.append(Triangle(vectors[0], vectors[1], vectors[2]))
-			vectors = []
-
+			faces.append([face_num*3, face_num*3+1, face_num*3+2])
+			face_num +=1
 		amtDone = line_num / num_lines
 		sys.stdout.write("\rProgress: [{0:50s}] {1:.1f}%".format('#' * int(amtDone * 50), amtDone * 100))
 
 
+	faces = np.array(faces, dtype = int)
+	vertices = np.array(vertices,dtype = float)
+
+	return vertices, faces 
 
 
-	return triangles
 
 
-def get_vertices_faces_from_triangles(triangles):
-	vertices = [0] * len(triangles)*3
-
-
-	i = 0
-	for t in triangles:
-		vertices[i*3] = [t.V1.X, t.V1.Y, t.V1.Z]
-		vertices[i*3 + 1] = [t.V2.X, t.V2.Y, t.V2.Z]
-		vertices[i*3 + 2] = [t.V3.X, t.V3.Y, t.V3.Z]
-
-		i+=1
-
-	faces = np.zeros(len(vertices/3,3),dtype = int)
-	del_verts = []
-	unique_vert_count =1
-	vert_dict = {}
-	face_list = []
-
-	for i in range(len(vertices)):
-		new_vert = frozenset(vertices[i])
-		try:
-			face_val = vert_dict[new_vert]
-			del_verts.append(i)
-		except KeyError:
-			face_val = unique_vert_count
-			unique_vert_count +=1
-		
-		vert_dict[new_vert] = face_val
-		faces[i//3][i%3] = face_val
-
-	for i in reversed(del_verts):
-		del vertices[i]
-
-	vertices = np.array(vertices)
-
-	return vertices, faces
-
-def write_data_out(vertices, faces):
-	np.savetxt('vertices.txt',vertices)
-	np.savetxt('faces.txt',faces)
-	print('Saved')
-	
-
-def pickle_out(ver, faces,iter):
-	import pickle
-	pickle_out1 = open('vertices_' + str(iter) + '.pickle','wb')
-	pickle.dump(ver,pickle_out1)
-	print('\n Wrote: ' + 'vertices_' + str(iter) + '.pickle')
-	pickle_out1.close()
-	pickle_out2 = open('faces_' + str(iter) + '.pickle','wb')
-	pickle.dump(faces,pickle_out2)
-	print('\n Wrote: ' + 'faces_' + str(iter) + '.pickle')
-	pickle_out2.close()
-
-
-if __name__ == '__main__':
-	file = "/home/adam/3d_facets/stormtrooper/helmet-ascii.stl"
-	#file = "/home/adam/3d_facets/cheval.stl"
-
-	triangles = read_file_into_mesh(file)
-
-	iters = .51
-	mesh = Mesh(triangles)
-	tri = mesh.simplify(iters)
-	ver, faces = make_triangles_pyqt_readable(tri)
-	pickle_out(ver,faces,iters)
-	pdb.set_trace()
