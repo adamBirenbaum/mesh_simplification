@@ -16,7 +16,7 @@ class Mesh():
 	def __init__(self,triangles):
 		self.Triangles = triangles
 
-	def simplify(self, factor):
+	def simplify(self, factor,original_num_faces):
 
 		print('\n\nCreating vector -> vertex dict...')
 		vectorVertex = {}
@@ -166,9 +166,9 @@ class Mesh():
 
 		iteration = 0
 		numFaces = len(self.Triangles)
-		print('Orignal Number of Faces: '+ str(numFaces))
-		original_num_faces = float(len(self.Triangles))
-		target = int(float(numFaces) *  factor)
+		print('Orignal Number of Faces: '+ str(original_num_faces))
+		#original_num_faces = float(len(self.Triangles))
+		target = int(float(original_num_faces) *  factor)
 		print('Target Number of Faces: '+str(target))
 		#error_cutoff = False
 		

@@ -133,13 +133,13 @@ if __name__ == '__main__':
 
 	triangles = create_triangles(vertices, faces)
 
-
+	original_num_faces = len(triangles)
 	for frac in fraction:
 
 		mesh = Mesh(triangles)
-		tri = mesh.simplify(frac)
+		triangles = mesh.simplify(frac,original_num_faces)
 
-		ver, faces = get_vertices_faces_from_triangles(tri)
+		ver, faces = get_vertices_faces_from_triangles(triangles)
 
 		write_data_out(ver,faces,frac, basename)
 	end_time = time.time()
