@@ -49,7 +49,7 @@ class Matrix():
 		self.x03 + b.x03, self.x13 + b.x13, self.x23 + b.x23, self.x33 + b.x33, \
 	)
 	
-	def mutliply_scalar(self,s):
+	def multiply_scalar(self,s):
 		return Matrix(self.x00*s, self.x01*s, self.x02*s, self.x03*s, self.x10*s, self.x11*s, self.x12*s, self.x13*s, self.x20*s, self.x21*s, self.x22*s, self.x23*s, self.x30*s, self.x31*s, self.x32*s, self.x33*s)
 
 	def MulPosition(self, b):

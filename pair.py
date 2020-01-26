@@ -1,6 +1,7 @@
 import math
 
 from vector import Vector
+from matrix import Matrix
 
 class PairKey():
 	def __init__(self, a,b):
@@ -36,28 +37,28 @@ class Pair():
 
 	def get_boundary_normal(self,face):
 		if self.is_boundary:
-			v1 = self.A.vector
-		v2 = self.B.vector
-		if v1.less(v2):
+			v1 = self.A.Vector
+		v2 = self.B.Vector
+		if v1.Less(v2):
 			v1,v2 = v2,v1
 
-		n = face.normal().cross(v1.subtract(v2)).normalize()
+		n = face.Normal().cross(v1.subtract(v2)).Normalize()
 
 
 	def boundary_quadric(self,face):
-		v1 = self.A.vector
-		v2 = self.B.vector
-		if v1.less(v2):
+		v1 = self.A.Vector
+		v2 = self.B.Vector
+		if v1.Less(v2):
 			v1,v2 = v2,v1
 		
-		n = face.normal().cross(v1.subtract(v2)).normalize()
-		x,y,z = v1.x, v1.y, v1.z
-		a,b,c = n.x, n.y, n.z
+		n = face.Normal().Cross(v1.Sub(v2)).Normalize()
+		x,y,z = v1.X, v1.X, v1.X
+		a,b,c = n.X, n.Y, n.Z
 		d = -a*x - b*y - c*z
 		
 		penalty = 10000
 
-		return Matrix(a*a, a*b, a*c,a*d, a*b, b*b, b*c, b*d, a*c, b*c, c*c, C*d, a*d, b*d, c*d, d*d).multiply_scalary(penalty)
+		return Matrix(a*a, a*b, a*c,a*d, a*b, b*b, b*c, b*d, a*c, b*c, c*c, c*d, a*d, b*d, c*d, d*d).multiply_scalar(penalty)
 
 	def Quadric(self):
 		return self.A.Quadric.Add(self.B.Quadric) # Matrix

@@ -15,9 +15,14 @@ def read_obj_file(file):
 	for line in open(file, 'r'):
 		line_num += 1.0
 		split_line = line.split()
+
+		if len(split_line) == 0:
+			continue
+
 		if split_line[0] == 'v':
 			vertices.append([split_line[1], split_line[2], split_line[3]])
 			continue
+
 		if split_line[0] == 'f':
 			
 			new_face = [0,0,0]

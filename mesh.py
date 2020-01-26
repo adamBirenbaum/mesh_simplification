@@ -127,8 +127,8 @@ class Mesh():
 			i+=1
 			if len(f) == 1:
 				boundary_q = p.boundary_quadric(f[0])
-				p.A.Q = p.A.Q.add(boundar_Q)
-				p.B.Q = p.B.Q.add(boundary_qq)
+				p.A.Quadric = p.A.Quadric.Add(boundary_q)
+				p.B.Quadric = p.B.Quadric.Add(boundary_q)
 				n_one+=1
 			else:
 				n_two +=1
