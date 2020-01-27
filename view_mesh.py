@@ -1,148 +1,43 @@
-#import initExample
-
 from pyqtgraph.Qt import QtCore, QtGui
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
-
-
-
-app = QtGui.QApplication([])
-w = gl.GLViewWidget()
-w.show()
-w.setWindowTitle('pyqtgraph example: GLMeshItem')
-w.setCameraPosition(distance=700)
-
-#g = gl.GLGridItem()
-#g.scale(2,2,1)
-#w.addItem(g)
-
 import numpy as np
-import pdb
+import sys
+class Plot3D():
 
-## Example 1:
-## Array of vertex positions and array of vertex indexes defining faces
-## Colors are specified per-face
-import pickle
-# pickle_in = open('original_vertices.pickle','rb')
-# vertices = pickle.load(pickle_in, encoding = 'latin1')
-# pickle_in.close()
+	def __init__(self):
+		app = QtGui.QApplication.instance()
+		if app is None:
+			self.app = QtGui.QApplication([])
+		else:
+			self.app = app
 
-# pickle_in = open('original_faces.pickle','rb')
-# faces = pickle.load(pickle_in, encoding = 'latin1')
-# pickle_in.close()
+		self.view = gl.GLViewWidget()
+		self.view.show()
+		self.view.setGeometry(300,150,1600,900)
+		#v = Vector(0,0,0)
+		self.view.setCameraPosition(distance = 700)
+		#self.view.opts['center'] = V
 
-iters = 0.5
-pickle_in = open('vertices_' + str(iters) + '.pickle','rb')
-vertices = pickle.load(pickle_in, encoding = 'latin1')
-pickle_in.close()
+	def add_mesh(self, mesh):
+		self.view.addItem(mesh)
 
-pickle_in = open('faces_' + str(iters) + '.pickle','rb')
-faces = pickle.load(pickle_in, encoding = 'latin1')
-pickle_in.close()
+	def start(self):
+		if (sys.flags.interactive!=1) or not hasattr(QtCore, 'PYQT_VERSION'):
+			print('here')
+			self.app.instance().exec_()
 
-import numpy as np
-
-
-
-vertices = np.asarray(vertices)
-faces = np.asarray(faces)
-
-
-
-# from stl import mesh
-
-# obj = mesh.Mesh(np.zeros(faces.shape[0], dtype=mesh.Mesh.dtype))
-# for i, f in enumerate(faces):
-#     for j in range(3):
-#         obj.vectors[i][j] = vertices[f[j],:]
-
-# # Write the mesh to file "cube.stl"
-# obj.save('helmet_' + str(iters) + '.stl')
-
-
-
-
-
-
-
-
-## Mesh item will automatically compute face normals.
-m1 = gl.GLMeshItem(vertexes=vertices, faces=faces,  smooth=True)  #shader = 'shaded')#, color = face_colors )
-#m1.translate(5, 5, 0)
-#m1.setGLOptions('additive')
-w.addItem(m1)
-
-
-# ## Example 2:
-# ## Array of vertex positions, three per face
-# verts = np.empty((36, 3, 3), dtype=np.float32)
-# theta = np.linspace(0, 2*np.pi, 37)[:-1]
-# verts[:,0] = np.vstack([2*np.cos(theta), 2*np.sin(theta), [0]*36]).T
-# verts[:,1] = np.vstack([4*np.cos(theta+0.2), 4*np.sin(theta+0.2), [-1]*36]).T
-# verts[:,2] = np.vstack([4*np.cos(theta-0.2), 4*np.sin(theta-0.2), [1]*36]).T
-    
-# ## Colors are specified per-vertex
-# colors = np.random.random(size=(verts.shape[0], 3, 4))
-# m2 = gl.GLMeshItem(vertexes=verts, vertexColors=colors, smooth=False, shader='balloon', 
-#                    drawEdges=True, edgeColor=(1, 1, 0, 1))
-# m2.translate(-5, 5, 0)
-# w.addItem(m2)
-
-
-
-# ## Example 3:
-# ## sphere
-
-# md = gl.MeshData.sphere(rows=10, cols=20)
-# #colors = np.random.random(size=(md.faceCount(), 4))
-# #colors[:,3] = 0.3
-# #colors[100:] = 0.0
-# colors = np.ones((md.faceCount(), 4), dtype=float)
-# colors[::2,0] = 0
-# colors[:,1] = np.linspace(0, 1, colors.shape[0])
-# md.setFaceColors(colors)
-# m3 = gl.GLMeshItem(meshdata=md, smooth=False)#, shader='balloon')
-
-# m3.translate(5, -5, 0)
-# w.addItem(m3)
-
-
-# # Example 4:
-# # wireframe
-
-# md = gl.MeshData.sphere(rows=4, cols=8)
-# m4 = gl.GLMeshItem(meshdata=md, smooth=False, drawFaces=False, drawEdges=True, edgeColor=(1,1,1,1))
-# m4.translate(0,10,0)
-# w.addItem(m4)
-
-# # Example 5:
-# # cylinder
-# md = gl.MeshData.cylinder(rows=10, cols=20, radius=[1., 2.0], length=5.)
-# md2 = gl.MeshData.cylinder(rows=10, cols=20, radius=[2., 0.5], length=10.)
-# colors = np.ones((md.faceCount(), 4), dtype=float)
-# colors[::2,0] = 0
-# colors[:,1] = np.linspace(0, 1, colors.shape[0])
-# md.setFaceColors(colors)
-# m5 = gl.GLMeshItem(meshdata=md, smooth=True, drawEdges=True, edgeColor=(1,0,0,1), shader='balloon')
-# colors = np.ones((md.faceCount(), 4), dtype=float)
-# colors[::2,0] = 0
-# colors[:,1] = np.linspace(0, 1, colors.shape[0])
-# md2.setFaceColors(colors)
-# m6 = gl.GLMeshItem(meshdata=md2, smooth=True, drawEdges=False, shader='balloon')
-# m6.translate(0,0,7.5)
-
-# m6.rotate(0., 0, 1, 1)
-# #m5.translate(-3,3,0)
-# w.addItem(m5)
-# w.addItem(m6)
-
-
-
-    
-
-
-## Start Qt event loop unless running in interactive mode.
 if __name__ == '__main__':
-    import sys
-    if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
-        QtGui.QApplication.instance().exec_()
+
+	inputs = sys.argv
+	basename = inputs[1]
+	fraction = inputs[2]
+	p_3d = Plot3D()
+	vertices = np.loadtxt(basename + '_vertices_'+fraction+'.txt')
+	faces = np.loadtxt(basename + '_faces_'+fraction+'.txt', dtype = int)
+
+	mesh = gl.GLMeshItem(vertexes=vertices, faces=faces,  smooth=False, shader = 'viewNormalColor') 
+	#mesh = gl.GLMeshItem(vertexes=vertices, faces=faces,  smooth=False, shader = 'shaded') 
+	#mesh.setGLOptions('additive')
+	p_3d.add_mesh(mesh)
+	p_3d.start()

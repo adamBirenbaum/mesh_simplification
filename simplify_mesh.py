@@ -118,7 +118,7 @@ if __name__ == '__main__':
 		fraction = fraction.split(',')
 		fraction = list(map(float,fraction))
 	else:
-		fraction = float(fraction)
+		fraction = [float(fraction)]
 
 	#file = "/home/adam/3d_facets/stormtrooper/helmet-ascii.stl"
 	#file = "/home/adam/3d_facets/cheval.stl"
@@ -132,6 +132,15 @@ if __name__ == '__main__':
 
 
 	triangles = create_triangles(vertices, faces)
+
+	# Save original version
+	ver, faces = get_vertices_faces_from_triangles(triangles)
+	write_data_out(ver,faces,'original', basename)
+	del ver
+	del faces
+
+	if len(fraction) == 1:
+		quit()
 
 	original_num_faces = len(triangles)
 	for frac in fraction:
